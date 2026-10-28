@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ryan Dhooghe</title>
+<meta name="description" content="Ryan Dhooghe — developer building Minecraft addons, Discord bots, trading tools and game engines.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111'/><text x='16' y='22' font-family='system-ui' font-weight='800' font-size='16' fill='%23ff8a3d' text-anchor='middle'>r</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body>
+
+<!-- ============ LOCK SCREEN ============ -->
+<section id="lock" aria-label="Lock screen">
+  <div class="lock-bg"></div>
+  <div class="lock-top">
+    <div class="lock-date" id="lockDate"></div>
+    <div class="lock-time" id="lockTime"></div>
+  </div>
+  <div class="lock-notifs" id="lockNotifs" aria-live="polite"></div>
+  <button class="unlock" id="unlockBtn" aria-label="Unlock">
+    <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10 L11 2 L20 10"/></svg>
+    <span class="unlock-label">Swipe up to unlock</span>
+  </button>
+</section>
+
+<!-- ============ DESKTOP ============ -->
+<main id="desktop" aria-label="Desktop" hidden>
+  <div class="wall"></div>
+
+  <header class="menubar">
+    <div class="mb-left">
+      <span class="mb-brand" id="mbHandle"></span>
+      <span class="mb-app" id="mbApp">Finder</span>
+      <span class="mb-item">File</span><span class="mb-item">Edit</span><span class="mb-item">View</span><span class="mb-item">Window</span>
+    </div>
+    <div class="mb-right">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.5 6.5 0 0 1 9.2 0l-1.1 1.1a5 5 0 0 0-7 0zM1.2 4.6a9.6 9.6 0 0 1 13.6 0l-1.1 1.1a8 8 0 0 0-11.4 0z"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" fill="none" aria-hidden="true"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><rect x="21.5" y="4" width="1.5" height="4" rx=".7" fill="currentColor" opacity=".5"/></svg>
+      <span id="mbClock"></span>
+    </div>
+  </header>
+
+  <!-- desktop widgets -->
+  <aside class="widget hello" id="helloWidget">
+    <div class="w-kicker">Hello, I'm</div>
+    <h1 class="w-name" id="wName"></h1>
+    <p class="w-tag" id="wTag"></p>
+    <div class="w-meta"><span class="dot"></span><span id="wLoc"></span></div>
+    <div class="w-hint">Open an app from the dock below</div>
+  </aside>
+
+  <div id="windows"></div>
+
+  <nav class="dock" id="dock" aria-label="Dock"></nav>
+</main>
+
+<!-- ============ MOBILE HOME ============ -->
+<main id="phone" aria-label="Home screen" hidden>
+  <div class="wall"></div>
+  <div class="ph-status"><span id="phClock"></span><span class="ph-icons">●●● ▮</span></div>
+  <div class="ph-widget">
+    <div class="w-kicker">Hello, I'm</div>
+    <div class="ph-name" id="phName"></div>
+    <div class="ph-tag" id="phTag"></div>
+  </div>
+  <div class="ph-grid" id="phGrid"></div>
+  <div class="ph-dock" id="phDock"></div>
+  <div id="sheets"></div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
