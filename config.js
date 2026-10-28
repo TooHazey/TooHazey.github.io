@@ -22,11 +22,11 @@ window.SITE = {
 
   // Safari tabs = your projects. "url" is optional.
   projects: [
-    { name: "Bedrock Addons", url: "https://github.com/", desc: "Custom Minecraft Bedrock Edition addons and resource packs — blocks, entities, scripting and UI, built with JSON + JavaScript.", tags: ["Minecraft", "JavaScript", "Bedrock API"] },
-    { name: "Discord Bots", url: "https://github.com/", desc: "Self-hosted Discord bots running on my own hardware — moderation, mini-games, server tools and slash commands.", tags: ["Python", "discord.py", "Self-hosted"] },
-    { name: "Trading Bot", url: "https://github.com/", desc: "Algorithmic trading assistant with live market data, strategy backtesting, paper trading and a FastAPI dashboard.", tags: ["Python", "FastAPI", "PostgreSQL"] },
-    { name: "Game Engine", url: "https://github.com/", desc: "An experimental game engine: entity-component system, renderer, input and an asset pipeline — learning by building.", tags: ["Engine", "ECS", "Rendering"] },
-    { name: "Full-stack Apps", url: "https://github.com/", desc: "Web apps end to end — React/TypeScript front ends, Python backends, Redis caching and auto-updating desktop builds.", tags: ["TypeScript", "React", "Redis"] },
+    { name: "Bedrock Addons", url: "https://github.com/TooHazey", desc: "Custom Minecraft Bedrock Edition addons and resource packs — blocks, entities, scripting and UI, built with JSON + JavaScript.", tags: ["Minecraft", "JavaScript", "Bedrock API"] },
+    { name: "Discord Bots", url: "https://github.com/TooHazey", desc: "Self-hosted Discord bots running on my own hardware — moderation, mini-games, server tools and slash commands.", tags: ["Python", "discord.py", "Self-hosted"] },
+    { name: "Trading Bot", url: "https://github.com/TooHazey", desc: "Algorithmic trading assistant with live market data, strategy backtesting, paper trading and a FastAPI dashboard.", tags: ["Python", "FastAPI", "PostgreSQL"] },
+    { name: "Game Engine", url: "https://github.com/TooHazey", desc: "An experimental game engine: entity-component system, renderer, input and an asset pipeline — learning by building.", tags: ["Engine", "ECS", "Rendering"] },
+    { name: "Full-stack Apps", url: "https://github.com/TooHazey", desc: "Web apps end to end — React/TypeScript front ends, Python backends, Redis caching and auto-updating desktop builds.", tags: ["TypeScript", "React", "Redis"] },
   ],
 
   // Notes app = about you. Each note is a page.
@@ -44,7 +44,7 @@ window.SITE = {
 
   // Dock links on the right side
   socials: [
-    { name: "GitHub", icon: "gh", url: "https://github.com/" },
+    { name: "GitHub", icon: "gh", url: "https://github.com/TooHazey" },
     { name: "Discord", icon: "dc", url: "https://discord.com/" },
     { name: "YouTube", icon: "yt", url: "https://youtube.com/" },
   ],
