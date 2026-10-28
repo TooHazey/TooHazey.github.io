@@ -10,11 +10,11 @@ document.documentElement.style.setProperty('--lock-img', `url("${S.lockWallpaper
 document.documentElement.style.setProperty('--desk-img', `url("${S.desktopWallpaper}")`);
 document.title = S.name;
 
-// ---------- storage (safe in sandboxed iframes) ----------
+// ---------- in-memory state (swap for a backend to make the guestbook permanent) ----------
 const mem = {};
 const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return k in mem ? mem[k] : d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { mem[k] = v; } },
+  get(k, d) { return k in mem ? mem[k] : d; },
+  set(k, v) { mem[k] = v; },
 };
 
 // ---------- icons ----------
@@ -199,7 +199,7 @@ function renderGuestbook() {
   wrap.append(list, form);
   const paint = () => {
     const items = store.get('guestbook', []);
-    list.innerHTML = `<div class="gb-meta">Guestbook · notes are saved on this device</div>` +
+    list.innerHTML = `<div class="gb-meta">Guestbook</div>` +
       `<div class="bub them">Hey — thanks for stopping by. Leave a note below 👇</div>` +
       items.slice().reverse().map(g => `<div class="bub me"><b>${esc(g.name)}</b>${esc(g.msg)}</div>`).join('');
     list.scrollTop = list.scrollHeight;
