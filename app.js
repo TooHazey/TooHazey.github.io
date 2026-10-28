@@ -38,6 +38,7 @@ const ICON = {
   mc: () => `<div class="ic ic-mc"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#7a5230"/><rect width="16" height="5" fill="#5fae3a"/><rect y="5" width="3" height="2" fill="#5fae3a"/><rect x="7" y="5" width="2" height="1" fill="#5fae3a"/><rect x="12" y="5" width="3" height="2" fill="#5fae3a"/><rect x="4" y="9" width="2" height="2" fill="#5c3c22"/><rect x="10" y="11" width="2" height="2" fill="#5c3c22"/></svg></div>`,
   link: () => `<div class="ic ic-link"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>`,
 };
+ICON.github = ICON.gh;
 const icon = k => (ICON[k] || ICON.link)();
 
 // ---------- clock ----------
@@ -102,7 +103,8 @@ const APPS = {
   photos:   { name: 'Photos',   w: 640, h: 300, render: renderPhotos },
   safari:   { name: 'Safari',   w: 860, h: 560, render: renderSafari },
   notes:    { name: 'Notes',    w: 720, h: 480, render: renderNotes },
-  markets:  { name: 'Markets',  w: 560, h: 520, render: renderMarkets },
+  markets:  { name: 'Markets',  w: 560, h: 560, render: renderMarkets },
+  github:   { name: 'GitHub',   w: 820, h: 600, render: renderGitHub },
   games:    { name: 'Snake',    w: 440, h: 540, render: renderSnake },
   terminal: { name: 'Terminal', w: 640, h: 400, render: renderTerminal },
   guestbook:{ name: 'Guestbook',w: 440, h: 540, render: renderGuestbook },
@@ -191,8 +193,9 @@ async function getMarkets() {
   mktCache = await r.json(); mktAt = Date.now(); return mktCache;
 }
 function renderMarkets() {
-  const wrap = el('div', 'mkt', `<div class="mkt-head"><div><b>Markets</b><small>Live crypto prices · updates every minute</small></div></div><div class="mkt-big"></div><div class="mkt-list"><div class="mkt-skel"></div><div class="mkt-skel"></div><div class="mkt-skel"></div></div>`);
+  const wrap = el('div', 'mkt', `<div class="mkt-head"><div><b>Markets</b><small>Live crypto prices · updates every minute</small></div><div class="mkt-fg"></div></div><div class="mkt-big"></div><div class="mkt-list"><div class="mkt-skel"></div><div class="mkt-skel"></div><div class="mkt-skel"></div></div>`);
   const list = $('.mkt-list', wrap), big = $('.mkt-big', wrap);
+  getFng().then(d => { if (d) $('.mkt-fg', wrap).innerHTML = `${gauge(d[0].v, 64)}<div><small>Fear &amp; Greed</small><b style="color:${fngColor(d[0].v)}">${d[0].v} · ${esc(d[0].label)}</b></div>`; });
   const pick = c => {
     const up = (c.price_change_percentage_24h || 0) >= 0;
     big.innerHTML = `<div class="mkt-bt"><img src="${esc(c.image)}" alt=""><b>${esc(c.name)}</b><span>${esc(c.symbol.toUpperCase())}</span></div><div class="mkt-bp">${fmtUsd(c.current_price)} <em class="${up ? 'up' : 'dn'}">${up ? '▲' : '▼'} ${Math.abs(c.price_change_percentage_24h || 0).toFixed(2)}%</em></div>${spark(c.sparkline_in_7d?.price, 500, 110, up)}<small class="mkt-cap">7-day chart · Market cap ${fmtUsd(c.market_cap)}</small>`;
@@ -285,7 +288,7 @@ function renderTerminal() {
   const print = (txt, cls = '') => { out.appendChild(el('div', cls, txt)); wrap.scrollTop = wrap.scrollHeight; };
   const hist = []; let hi = 0;
   const cmds = {
-    help: () => 'commands: <b>whoami</b>, <b>projects</b>, <b>stack</b>, <b>contact</b>, <b>btc</b>, <b>weather</b>, <b>open &lt;app&gt;</b>, <b>ls</b>, <b>neofetch</b>, <b>clear</b>',
+    help: () => 'commands: <b>whoami</b>, <b>projects</b>, <b>stack</b>, <b>contact</b>, <b>btc</b>, <b>fng</b>, <b>github</b>, <b>discord</b>, <b>weather</b>, <b>open &lt;app&gt;</b>, <b>ls</b>, <b>neofetch</b>, <b>clear</b>',
     whoami: () => `${esc(S.name)} — ${esc(S.tagline)}<br>📍 ${esc(S.location)}`,
     projects: () => S.projects.map((p, i) => `<span class="tm-a">[${i + 1}]</span> ${esc(p.name)} — ${esc((p.tags || []).join(', '))}`).join('<br>'),
     stack: () => esc(S.notes.find(n => /stack/i.test(n.title))?.body || '').replace(/\n/g, '<br>'),
@@ -295,11 +298,14 @@ function renderTerminal() {
     sudo: () => 'nice try.',
     edit: () => { setTimeout(() => location.href = 'admin.html', 600); return 'owner only — opening sign-in…'; },
     neofetch: () => `<pre class="tm-neo"><span class="tm-a">   ▄▄▄▄▄▄   </span>  <b>${esc(S.handle)}</b>@site
-<span class="tm-a">  █ ▄▄ ▄▄ █  </span>  OS: RyanOS 2.0 (web)
+<span class="tm-a">  █ ▄▄ ▄▄ █  </span>  OS: RyanOS 3.1 (web)
 <span class="tm-a">  █ ▀▀ ▀▀ █  </span>  Host: GitHub Pages
 <span class="tm-a">  █  ▄▄▄  █  </span>  Shell: zsh-ish
 <span class="tm-a">   ▀▀▀▀▀▀   </span>  Apps: ${Object.keys(APPS).length}  ·  Projects: ${S.projects.length}</pre>`,
     btc: async () => { try { const d = await getMarkets(); const b = d.find(c => c.id === 'bitcoin') || d[0]; return `${esc(b.name)}: <b>${fmtUsd(b.current_price)}</b> (${b.price_change_percentage_24h.toFixed(2)}% 24h)`; } catch { return 'market data unavailable'; } },
+    fng: async () => { const d = await getFng(); return d ? `Fear &amp; Greed: <b style="color:${fngColor(d[0].v)}">${d[0].v} (${esc(d[0].label)})</b> · yesterday ${d[1]?.v} · last week ${d[7]?.v}` : 'index unavailable'; },
+    github: async () => { const { user, repos } = await getGH(); if (!user) return 'github unavailable'; return `<b>@${esc(user.login)}</b> · ${user.public_repos} repos · ${user.followers} followers<br>` + repos.slice(0, 5).map(r => `<span class="tm-a">●</span> ${esc(r.name)} <span class="tm-dim">${esc(r.language || '')} · ${ago(r.pushed_at)}</span>`).join('<br>'); },
+    discord: async () => { const d = await getDiscord(); if (!d) return `find me on Discord: <a href="${esc(dcLink())}" target="_blank" rel="noopener">${esc(DC.username || S.handle)}</a>`; const a = dcActivity(d); return `<b>${esc(d.discord_user.username)}</b> is ${(DC_ST[d.discord_status] || DC_ST.offline)[1].toLowerCase()}${a ? ' · ' + esc(a.line) : ''}`; },
     weather: async () => { const w = await getWeather(); return w ? `${esc(S.weather.label)}: <b>${w.t}°F</b>, ${w.desc} · H ${w.hi}° L ${w.lo}°` : 'weather unavailable'; },
   };
   print(`Last login: ${new Date().toDateString()} on ttys001`, 'tm-dim');
@@ -398,6 +404,153 @@ function nowPlayingWidget(cls) {
   return w;
 }
 
+
+// ---------- shared helpers for live widgets ----------
+const ago = t => { const s = (Date.now() - new Date(t)) / 1000; if (s < 60) return 'just now'; const u = [[31536000, 'y'], [2592000, 'mo'], [86400, 'd'], [3600, 'h'], [60, 'm']].find(([n]) => s >= n); return Math.floor(s / u[0]) + u[1] + ' ago'; };
+const alive = (node, fn, ms) => { const iv = setInterval(() => { if (!document.body.contains(node)) return clearInterval(iv); fn(); }, ms); };
+
+// ---- Fear & Greed (alternative.me crypto index, no key needed) ----
+let fngP = null;
+const getFng = () => (fngP = fngP || fetch('https://api.alternative.me/fng/?limit=30').then(r => r.json()).then(d => d.data.map(x => ({ v: +x.value, label: x.value_classification, t: +x.timestamp * 1000 }))).catch(() => { fngP = null; return null; }));
+const fngColor = v => v < 25 ? '#ff453a' : v < 45 ? '#ff9f0a' : v < 56 ? '#ffd60a' : v < 76 ? '#a3d94b' : '#34c759';
+function gauge(v, size = 120) {
+  const r = 46, cx = 60, cy = 58, seg = ['#ff453a', '#ff9f0a', '#ffd60a', '#a3d94b', '#34c759'];
+  const pt = (a, rr = r) => [cx + rr * Math.cos(Math.PI * (1 - a)), cy - rr * Math.sin(Math.PI * (1 - a))];
+  const arcs = seg.map((c, i) => { const [x1, y1] = pt(i / 5 + .012), [x2, y2] = pt((i + 1) / 5 - .012); return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${c}" stroke-width="9" fill="none" stroke-linecap="round"/>`; }).join('');
+  const [nx, ny] = pt(Math.max(0, Math.min(100, v ?? 50)) / 100, 36);
+  return `<svg class="fg-g" viewBox="0 0 120 66" width="${size}" height="${size * .55}" aria-hidden="true">${arcs}<line class="fg-needle" x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="5" fill="#fff"/></svg>`;
+}
+function fngWidget(cls) {
+  const w = el('button', 'fg-w ' + (cls || 'widget'), `<small class="fg-k">Fear &amp; Greed</small>${gauge(null)}<div class="fg-v">--</div><div class="fg-l">Loading…</div>`);
+  w.setAttribute('aria-label', 'Crypto Fear and Greed index');
+  w.onclick = () => open('markets');
+  getFng().then(d => {
+    if (!d) { $('.fg-l', w).textContent = 'Unavailable'; return; }
+    const [now, yest] = d, wk = d[7], c = fngColor(now.v);
+    const hist = d.slice().reverse().map(x => x.v);
+    w.innerHTML = `<small class="fg-k">Fear &amp; Greed</small>${gauge(now.v)}<div class="fg-v" style="color:${c}">${now.v}</div><div class="fg-l">${esc(now.label)}</div><div class="fg-x"><span>Yesterday <b>${yest?.v ?? '-'}</b></span><span>Last week <b>${wk?.v ?? '-'}</b></span></div><div class="fg-h">${spark(hist, 240, 34, now.v >= (d[29]?.v ?? 0))}<small>30 days · crypto market mood</small></div>`;
+  });
+  return w;
+}
+
+// ---- Discord (live presence via Lanyard if a user ID is set) ----
+const DC = S.discord || {};
+const dcLink = () => DC.invite || (DC.userId ? `https://discord.com/users/${DC.userId}` : (S.socials || []).find(s => s.icon === 'dc')?.url || 'https://discord.com/');
+const DC_ST = { online: ['#23a55a', 'Online'], idle: ['#f0b232', 'Idle'], dnd: ['#f23f43', 'Do not disturb'], offline: ['#80848e', 'Offline'] };
+let dcCache = null, dcAt = 0;
+async function getDiscord() {
+  if (!DC.userId) return null;
+  if (dcCache && Date.now() - dcAt < 25000) return dcCache;
+  try { const r = await fetch(`https://api.lanyard.rest/v1/users/${encodeURIComponent(DC.userId)}`).then(r => r.json()); dcCache = r.success ? r.data : null; dcAt = Date.now(); } catch { dcCache = null; }
+  return dcCache;
+}
+const ACT = ['Playing', 'Streaming', 'Listening to', 'Watching', '', 'Competing in'];
+function dcActivity(d) {
+  if (d.listening_to_spotify && d.spotify) return { line: `Listening to ${d.spotify.song}`, sub: `by ${d.spotify.artist}`, art: d.spotify.album_art_url };
+  const a = (d.activities || []).find(x => x.type !== 4);
+  if (a) return { line: `${ACT[a.type] || 'Playing'} ${a.name}`, sub: a.details || a.state || '' };
+  return null;
+}
+function discordWidget(cls) {
+  const w = el('a', 'dc-w ' + (cls || 'widget'));
+  w.href = dcLink(); w.target = '_blank'; w.rel = 'noopener';
+  const name = DC.username || S.handle;
+  const paint = d => {
+    if (!d) {
+      w.innerHTML = `<div class="dc-top">${icon('dc')}<div class="dc-id"><b>${esc(name)}</b><small>Discord</small></div></div><p class="dc-act">Come hang out, talk bots, addons or trading.</p><span class="dc-btn">${DC.invite ? 'Join my server' : 'Message me'}</span>`;
+      return;
+    }
+    const u = d.discord_user, [col, st] = DC_ST[d.discord_status] || DC_ST.offline;
+    const av = u.avatar ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=128` : `https://cdn.discordapp.com/embed/avatars/${(BigInt(u.id) >> 22n) % 6n}.png`;
+    const custom = (d.activities || []).find(x => x.type === 4)?.state;
+    const act = dcActivity(d);
+    w.innerHTML = `<div class="dc-top"><div class="dc-av" style="background-image:url('${esc(av)}')"><i style="background:${col}" title="${st}"></i></div><div class="dc-id"><b>${esc(u.global_name || u.display_name || u.username)}</b><small>@${esc(u.username)} · <span style="color:${col}">${st}</span></small></div></div>${custom ? `<p class="dc-cs">“${esc(custom)}”</p>` : ''}${act ? `<div class="dc-act on">${act.art ? `<img src="${esc(act.art)}" alt="">` : icon('games')}<div><b>${esc(act.line)}</b><small>${esc(act.sub)}</small></div></div>` : `<p class="dc-act">${d.discord_status === 'offline' ? 'Offline right now. Leave a message.' : 'Not playing anything right now.'}</p>`}<span class="dc-btn">${DC.invite ? 'Join my server' : 'Message me'}</span>`;
+  };
+  paint(null);
+  if (DC.userId) { getDiscord().then(paint); alive(w, () => { dcAt = 0; getDiscord().then(paint); }, 30000); }
+  return w;
+}
+
+// ---- GitHub (public API, cached 10 minutes per visitor) ----
+const GHU = S.github?.user || 'TooHazey';
+const LANG = { JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5', HTML: '#e34c26', CSS: '#563d7c', 'C#': '#178600', Java: '#b07219', Lua: '#000080', Shell: '#89e051', Go: '#00ADD8', Rust: '#dea584', 'C++': '#f34b7d' };
+let ghP = null;
+function getGH() {
+  if (ghP) return ghP;
+  try { const c = JSON.parse(sessionStorage.getItem('ryanos-gh') || 'null'); if (c && c.u === GHU && Date.now() - c.t < 600000) return (ghP = Promise.resolve(c.d)); } catch {}
+  const j = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  ghP = Promise.all([
+    j(`https://api.github.com/users/${GHU}`),
+    j(`https://api.github.com/users/${GHU}/repos?sort=pushed&per_page=30`),
+    j(`https://api.github.com/users/${GHU}/events/public?per_page=40`),
+    j(`https://github-contributions-api.jogruber.de/v4/${GHU}?y=last`),
+  ]).then(([user, repos, events, contrib]) => {
+    const d = { user, repos: (repos || []).filter(r => !r.fork), events: events || [], contrib };
+    if (user) try { sessionStorage.setItem('ryanos-gh', JSON.stringify({ u: GHU, t: Date.now(), d })); } catch {}
+    return d;
+  });
+  return ghP;
+}
+function heatmap(contrib, weeks = 53) {
+  const days = contrib?.contributions || [];
+  if (!days.length) return '<div class="hm-empty">Contribution graph unavailable</div>';
+  const last = days.slice(-(weeks * 7 - (6 - new Date(days[days.length - 1].date + 'T12:00').getDay())));
+  const pad = new Date(last[0].date + 'T12:00').getDay();
+  const cells = Array(pad).fill('<i class="hm-x"></i>').concat(last.map(c => `<i class="l${c.level}" title="${c.count} contribution${c.count === 1 ? '' : 's'} on ${c.date}"></i>`));
+  return `<div class="hm">${cells.join('')}</div>`;
+}
+function evText(e) {
+  const r = `<b>${esc(e.repo.name.replace(GHU + '/', ''))}</b>`, p = e.payload || {};
+  switch (e.type) {
+    case 'PushEvent': { const n = p.size ?? p.commits?.length; return e._n ? `Pushed ${e._n} times to ${r}` : `Pushed ${n ? n + ' commit' + (n === 1 ? '' : 's') + ' ' : ''}to ${r}`; }
+    case 'CreateEvent': return p.ref_type === 'repository' ? `Created repository ${r}` : `Created ${esc(p.ref_type)} ${esc(p.ref || '')} in ${r}`;
+    case 'DeleteEvent': return `Deleted ${esc(p.ref_type)} ${esc(p.ref || '')} in ${r}`;
+    case 'WatchEvent': return `Starred ${r}`;
+    case 'ForkEvent': return `Forked ${r}`;
+    case 'PublicEvent': return `Made ${r} public`;
+    case 'ReleaseEvent': return `Released ${esc(p.release?.tag_name || '')} of ${r}`;
+    case 'IssuesEvent': return `${esc(p.action)} an issue in ${r}`;
+    case 'PullRequestEvent': return `${esc(p.action)} a pull request in ${r}`;
+    default: return `${esc(e.type.replace('Event', ''))} in ${r}`;
+  }
+}
+function groupEv(events) {
+  const out = [];
+  events.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(e => {
+    const prev = out[out.length - 1];
+    if (prev && e.type === 'PushEvent' && prev.type === 'PushEvent' && prev.repo.name === e.repo.name) { prev._n = (prev._n || 1) + 1; return; }
+    out.push({ ...e });
+  });
+  return out;
+}
+const endScroll = node => requestAnimationFrame(() => node.querySelectorAll('.hm-scroll').forEach(h => h.scrollLeft = h.scrollWidth));
+function renderGitHub() {
+  const wrap = el('div', 'ghx', `<div class="ghx-load"><div class="mkt-skel"></div><div class="mkt-skel"></div><div class="mkt-skel"></div></div>`);
+  getGH().then(({ user, repos, events, contrib }) => {
+    if (!user) { wrap.innerHTML = `<div class="mkt-err">GitHub is not responding right now. <a href="https://github.com/${GHU}" target="_blank" rel="noopener">Open my profile</a> instead.</div>`; return; }
+    const total = contrib?.total ? Object.values(contrib.total)[0] : null;
+    wrap.innerHTML = `
+      <header class="ghx-head"><img src="${esc(user.avatar_url)}&s=160" alt=""><div><h2>${esc(user.name || user.login)}</h2><small>@${esc(user.login)}${user.location ? ' · ' + esc(user.location) : ''}</small>${user.bio ? `<p>${esc(user.bio)}</p>` : ''}</div><a class="btn" href="${esc(user.html_url)}" target="_blank" rel="noopener">View profile</a></header>
+      <div class="ghx-stats"><div><b>${user.public_repos}</b><small>Repos</small></div><div><b>${total ?? '-'}</b><small>Contributions (year)</small></div><div><b>${user.followers}</b><small>Followers</small></div><div><b>${user.following}</b><small>Following</small></div></div>
+      <section class="ghx-hm"><h3>Contributions</h3><div class="hm-scroll">${heatmap(contrib)}</div><div class="hm-key">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</div></section>
+      <div class="ghx-cols"><section><h3>Repositories</h3><div class="ghx-repos">${repos.slice(0, 8).map(r => `<a class="ghx-r" href="${esc(r.html_url)}" target="_blank" rel="noopener"><b>${esc(r.name)}</b>${r.description ? `<p>${esc(r.description)}</p>` : ''}<small>${r.language ? `<span class="lang" style="--c:${LANG[r.language] || '#8e8e93'}"></span>${esc(r.language)} · ` : ''}★ ${r.stargazers_count} · updated ${ago(r.pushed_at)}</small></a>`).join('') || '<p class="muted">No public repos yet.</p>'}</div></section>
+      <section><h3>Recent activity</h3><ul class="ghx-ev">${groupEv(events).slice(0, 10).map(e => `<li><span>${evText(e)}</span><time>${ago(e.created_at)}</time></li>`).join('') || '<li class="muted">No recent public activity.</li>'}</ul></section></div>`;
+    endScroll(wrap);
+  });
+  return wrap;
+}
+function ghWidget(cls, weeks = 26) {
+  const w = el('button', 'widget gh-w ' + (cls || ''), `<div class="ghw-top">${icon('gh')}<div><b>GitHub</b><small>@${esc(GHU)}</small></div></div><div class="hm-scroll"><div class="mkt-skel"></div></div>`);
+  w.onclick = () => open('github');
+  getGH().then(({ user, repos, contrib }) => {
+    const total = contrib?.total ? Object.values(contrib.total)[0] : null;
+    const latest = repos[0];
+    w.innerHTML = `<div class="ghw-top">${user ? `<img src="${esc(user.avatar_url)}&s=96" alt="">` : icon('gh')}<div><b>GitHub</b><small>@${esc(GHU)}${total != null ? ` · ${total} contributions this year` : ''}</small></div>${latest ? `<span class="ghw-l">Latest: <b>${esc(latest.name)}</b> · ${ago(latest.pushed_at)}</span>` : ''}</div><div class="hm-scroll">${heatmap(contrib, weeks)}</div>`;
+    endScroll(w);
+  });
+  return w;
+}
+
 // ---------- window manager (desktop) ----------
 const winRoot = $('#windows');
 const openWins = {};
@@ -457,7 +610,7 @@ function drag(win, handle) {
 
 // ---------- dock ----------
 const dock = $('#dock');
-const dockApps = ['calendar', 'photos', 'safari', 'notes', 'markets', 'games', 'terminal', 'guestbook', 'mail', 'settings'];
+const dockApps = ['calendar', 'photos', 'safari', 'notes', 'github', 'markets', 'games', 'terminal', 'guestbook', 'mail', 'settings'];
 function dockItem(id) { return dock.querySelector(`[data-app="${id}"]`); }
 dockApps.forEach(id => {
   const b = el('button', 'dk', `${icon(id)}<span class="tip">${APPS[id].name}</span>`);
@@ -466,7 +619,7 @@ dockApps.forEach(id => {
   dock.appendChild(b);
 });
 dock.appendChild(el('div', 'dk-sep'));
-(S.socials || []).forEach(s => {
+(S.socials || []).filter(s => s.icon !== 'gh').forEach(s => {
   const a = el('a', 'dk', `${icon(s.icon)}<span class="tip">${esc(s.name)}</span>`);
   a.href = s.url; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', s.name);
   dock.appendChild(a);
@@ -497,7 +650,7 @@ function menu(x, y, items) {
 document.addEventListener('pointerdown', e => { if (!e.target.closest('.menu, .mb-brand')) closeMenus(); });
 function about() {
   closeMenus();
-  const d = el('div', 'about', `<div class="about-card"><div class="about-av">${esc(S.name.split(' ').map(x => x[0]).join(''))}</div><h2>${esc(S.name)}</h2><p>${esc(S.tagline)}</p><dl><dt>Location</dt><dd>${esc(S.location)}</dd><dt>Projects</dt><dd>${S.projects.length}</dd><dt>Contact</dt><dd><a href="mailto:${esc(S.email)}">${esc(S.email)}</a></dd><dt>Version</dt><dd>RyanOS 2.0</dd></dl><button class="btn">Close</button></div>`);
+  const d = el('div', 'about', `<div class="about-card"><div class="about-av">${esc(S.name.split(' ').map(x => x[0]).join(''))}</div><h2>${esc(S.name)}</h2><p>${esc(S.tagline)}</p><dl><dt>Location</dt><dd>${esc(S.location)}</dd><dt>Projects</dt><dd>${S.projects.length}</dd><dt>Contact</dt><dd><a href="mailto:${esc(S.email)}">${esc(S.email)}</a></dd><dt>Version</dt><dd>RyanOS 3.1</dd></dl><button class="btn">Close</button></div>`);
   d.onclick = e => { if (e.target === d || e.target.matches('.btn')) d.remove(); };
   document.body.appendChild(d);
 }
@@ -587,8 +740,10 @@ function deskSpace(pg) {
     const col = el('div', 'deskcol'); col.appendChild(helloCard());
     const m = el('div', 'minis'); if (S.weather) m.appendChild(weatherWidget()); if (S.nowPlaying?.title) m.appendChild(nowPlayingWidget());
     col.appendChild(m); sp.appendChild(col);
+    const rc = el('div', 'deskcol right'); rc.appendChild(discordWidget()); if (S.markets?.length) rc.appendChild(fngWidget()); sp.appendChild(rc);
   } else if (pg.type === 'projects') {
     const wrap = el('div', 'sp-wrap', `<div class="sp-title">${esc(pg.title)}<small>${S.projects.length} ${S.projects.length === 1 ? 'project' : 'projects'}</small></div>`);
+    wrap.appendChild(ghWidget('wide', 30));
     const g = el('div', 'proj-grid');
     S.projects.forEach((p, i) => {
       const c = el('button', 'widget proj-card', `<div class="pc-top">${projIcon(p)}<span class="pc-n">${String(i + 1).padStart(2, '0')}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="tags">${(p.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div>`);
@@ -621,12 +776,15 @@ function phonePage(pg) {
     p.appendChild(el('div', 'ph-widget', `<div class="w-kicker">Hello, I'm</div><div class="ph-name">${esc(S.name)}</div><div class="ph-tag">${esc(S.tagline)}</div>`));
     const m = el('div', 'minis ph-minis'); if (S.weather) m.appendChild(weatherWidget()); if (S.nowPlaying?.title) m.appendChild(nowPlayingWidget());
     p.appendChild(m);
+    const m2 = el('div', 'minis ph-minis'); m2.appendChild(discordWidget('mini')); if (S.markets?.length) m2.appendChild(fngWidget('mini'));
+    p.appendChild(m2);
     const g = el('div', 'ph-grid');
-    ['calendar', 'photos', 'markets', 'games', 'terminal', 'guestbook', 'settings'].forEach(id => g.appendChild(phoneIcon(icon(id), APPS[id].name, () => openSheet(id))));
+    ['calendar', 'photos', 'github', 'markets', 'games', 'terminal', 'guestbook', 'settings'].forEach(id => g.appendChild(phoneIcon(icon(id), APPS[id].name, () => openSheet(id))));
     p.appendChild(g);
   } else if (pg.type === 'projects') {
     const f = S.projects[0];
     if (f) { const c = el('button', 'widget proj-card ph-feat', `<div class="pc-top">${projIcon(f)}<span class="pc-n">Featured</span></div><h3>${esc(f.name)}</h3><p>${esc(f.desc)}</p>`); c.onclick = () => openSheet('safari', 0); p.appendChild(c); }
+    p.appendChild(ghWidget('ph-gh', 17));
     const g = el('div', 'ph-grid');
     S.projects.forEach((pr, i) => g.appendChild(phoneIcon(projIcon(pr), pr.name, () => openSheet('safari', i))));
     p.appendChild(g);

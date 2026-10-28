@@ -11,3 +11,5 @@ Live: https://toohazey.github.io/
 Calendar, Photos, Safari (projects), Notes, Markets (live crypto via CoinGecko), Snake, Terminal,
 Guestbook, Mail, Settings (wallpaper + accent). Plus Spotlight (Ctrl K), right-click menu, weather and Now Playing widgets.
 Swipeable pages (Home, Projects, About) on desktop and phone — manage them in the editor under Pages.
+
+Live widgets: GitHub app + contribution graph (public API), Discord presence (Lanyard, set your user ID in the editor), crypto Fear & Greed gauge (alternative.me).

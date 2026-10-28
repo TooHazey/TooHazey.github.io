@@ -84,7 +84,7 @@ const SECTIONS = [
   { id: 'photos', title: 'Photos', hint: 'Images in the Photos app.', fields: [
     { key: 'photos', label: 'Photos', type: 'list', item: 'Photo', fields: [{ key: 'src', label: 'Image', type: 'image' }, { key: 'caption', label: 'Caption' }], blank: { src: '', caption: '' } },
   ]},
-  { id: 'widgets', title: 'Widgets', hint: 'Now Playing, weather and the Markets app.', fields: [
+  { id: 'widgets', title: 'Widgets', hint: 'Now Playing, weather, GitHub, Discord and the Markets app (with the Fear & Greed gauge).', fields: [
     { key: 'nowPlaying.title', label: 'Now playing — title' },
     { key: 'nowPlaying.artist', label: 'Now playing — artist' },
     { key: 'nowPlaying.url', label: 'Now playing — link', help: 'Spotify, YouTube, SoundCloud…' },
@@ -92,6 +92,10 @@ const SECTIONS = [
     { key: 'weather.label', label: 'Weather — city name' },
     { key: 'weather.lat', label: 'Weather — latitude', type: 'number' },
     { key: 'weather.lon', label: 'Weather — longitude', type: 'number' },
+    { key: 'github.user', label: 'GitHub — username', help: 'Powers the GitHub app and the contribution graph on the Projects page.' },
+    { key: 'discord.userId', label: 'Discord — user ID (for live status)', help: 'Optional. In Discord: Settings → Advanced → Developer Mode, then right-click your name → Copy User ID. You also need to join discord.gg/lanyard once so your status can be read.' },
+    { key: 'discord.username', label: 'Discord — display name', help: 'Shown when live status is off.' },
+    { key: 'discord.invite', label: 'Discord — server invite link (optional)', help: 'If set, the widget button says “Join my server”.' },
     { key: 'markets', label: 'Markets — coins', type: 'tags', help: 'CoinGecko IDs, comma-separated: bitcoin, ethereum, solana…' },
   ]},
   { id: 'socials', title: 'Links', hint: 'Icons on the right side of the dock.', fields: [

@@ -180,5 +180,13 @@
       "title": "About",
       "type": "about"
     }
-  ]
+  ],
+  "discord": {
+    "userId": "",
+    "username": "",
+    "invite": ""
+  },
+  "github": {
+    "user": "TooHazey"
+  }
 }
