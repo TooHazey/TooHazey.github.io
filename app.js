@@ -503,7 +503,7 @@ function about() {
 }
 const brandItems = () => [['About ' + S.name, about], ['Settings…', () => open('settings')], '-', ['Spotlight Search   Ctrl K', spotlight], ['Lock Screen', relock], '-', ['Edit site (owner)', () => location.href = 'admin.html']];
 $('#mbHandle').addEventListener('click', e => { const r = e.target.getBoundingClientRect(); menu(r.left, r.bottom + 4, brandItems()); });
-$('#desktop .wall').addEventListener('contextmenu', e => { e.preventDefault(); menu(e.clientX, e.clientY, [['Change Wallpaper…', () => open('settings')], ['Open Terminal', () => open('terminal')], ['Play Snake', () => open('games')], '-', ['About This Site', about]]); });
+$('#spaces').addEventListener('contextmenu', e => { if (e.target.closest('.widget, button, a')) return; e.preventDefault(); menu(e.clientX, e.clientY, [['Change Wallpaper…', () => open('settings')], ['Open Terminal', () => open('terminal')], ['Play Snake', () => open('games')], '-', ...PAGES.map((pg, i) => ['Go to ' + pg.title, () => deskPager.go(i)]), '-', ['About This Site', about]]); });
 
 // ---------- spotlight ----------
 function spotlight() {
@@ -542,30 +542,170 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeMenus(); $('.about')?.remove(); }
 });
 
-// ---------- desktop widgets ----------
+// ---------- pages (swipeable home screens / desktop spaces) ----------
 $('#mbHandle').textContent = S.handle;
-$('#wName').textContent = S.name;
-$('#wTag').textContent = S.tagline;
-$('#wLoc').textContent = S.location + ' · available for projects';
-const minis = $('#deskMinis');
-if (S.weather) minis.appendChild(weatherWidget());
-if (S.nowPlaying?.title) minis.appendChild(nowPlayingWidget());
+const PAGES = (S.pages?.length ? S.pages : [{ title: 'Home', type: 'home' }, { title: 'Projects', type: 'projects' }, { title: 'About', type: 'about' }]);
 
-// ---------- phone ----------
-$('#phName').textContent = S.name;
-$('#phTag').textContent = S.tagline;
-const phMinis = $('#phMinis');
-if (S.weather) phMinis.appendChild(weatherWidget());
-if (S.nowPlaying?.title) phMinis.appendChild(nowPlayingWidget());
-const grid = $('#phGrid'), phDock = $('#phDock');
-const phoneIcon = (id, label, href) => {
-  const t = el(href ? 'a' : 'button', 'ph-app', `${icon(id)}<span>${esc(label)}</span>`);
-  if (href) { t.href = href; t.target = '_blank'; t.rel = 'noopener'; } else t.onclick = () => openSheet(id);
+// project "app icons": custom image, or a generated gradient tile with initials
+const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+const initials = s => String(s).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const projIcon = p => p.icon
+  ? `<div class="ic ic-proj" style="background-image:url('${esc(p.icon)}')"></div>`
+  : `<div class="ic ic-proj gen" style="--h:${hue(p.name)}"><span>${esc(initials(p.name))}</span></div>`;
+
+function helloCard(cls) {
+  return el('aside', 'widget hello ' + (cls || ''), `<div class="w-kicker">Hello, I'm</div><h1 class="w-name">${esc(S.name)}</h1><p class="w-tag">${esc(S.tagline)}</p><div class="w-meta"><span class="dot"></span><span>${esc(S.location)} · available for projects</span></div><div class="w-hint">Swipe or use ← → for more pages · Ctrl K to search</div>`);
+}
+function marketsWidget() {
+  const w = el('button', 'widget mk-w', `<div class="w-kicker">Markets</div><div class="mk-rows"><div class="mkt-skel"></div></div>`);
+  w.onclick = () => open('markets');
+  getMarkets().then(d => {
+    $('.mk-rows', w).innerHTML = d.slice(0, 3).map(c => { const up = (c.price_change_percentage_24h || 0) >= 0; return `<div class="mk-r"><b>${esc(c.symbol.toUpperCase())}</b>${spark(c.sparkline_in_7d?.price, 70, 22, up)}<span>${fmtUsd(c.current_price)}</span><em class="${up ? 'up' : 'dn'}">${up ? '+' : ''}${(c.price_change_percentage_24h || 0).toFixed(1)}%</em></div>`; }).join('');
+  }).catch(() => { $('.mk-rows', w).innerHTML = '<small class="muted">Unavailable right now</small>'; });
+  return w;
+}
+function noteWidget(n, i, cls) {
+  const w = el('button', 'widget note-w ' + (cls || ''), `<div class="nw-top"><span class="nw-ic"></span>Notes</div><h3>${esc(n.title)}</h3><p>${esc(n.body).replace(/\n/g, '<br>')}</p>`);
+  w.onclick = () => open('notes', i);
+  return w;
+}
+function contactWidget() {
+  const w = el('div', 'widget contact-w', `<div class="w-kicker">Get in touch</div><p>Got a bot, addon or tool idea? I'm open to projects.</p><div class="cw-btns"><button class="btn cw-mail">Email me</button><button class="btn ghost-btn cw-gb">Sign guestbook</button></div><div class="cw-socials"></div>`);
+  $('.cw-mail', w).onclick = () => open('mail');
+  $('.cw-gb', w).onclick = () => open('guestbook');
+  (S.socials || []).forEach(s => { const a = el('a', 'cw-s', icon(s.icon)); a.href = s.url; a.target = '_blank'; a.rel = 'noopener'; a.title = s.name; a.setAttribute('aria-label', s.name); $('.cw-socials', w).appendChild(a); });
+  return w;
+}
+const aboutNoteIdx = () => Math.max(0, S.notes.findIndex(n => /about/i.test(n.title)));
+const stackNoteIdx = () => S.notes.findIndex(n => /stack/i.test(n.title));
+
+// --- desktop space builders ---
+function deskSpace(pg) {
+  const sp = el('section', 'space');
+  sp.setAttribute('aria-label', pg.title);
+  if (pg.type === 'home') {
+    const col = el('div', 'deskcol'); col.appendChild(helloCard());
+    const m = el('div', 'minis'); if (S.weather) m.appendChild(weatherWidget()); if (S.nowPlaying?.title) m.appendChild(nowPlayingWidget());
+    col.appendChild(m); sp.appendChild(col);
+  } else if (pg.type === 'projects') {
+    const wrap = el('div', 'sp-wrap', `<div class="sp-title">${esc(pg.title)}<small>${S.projects.length} ${S.projects.length === 1 ? 'project' : 'projects'}</small></div>`);
+    const g = el('div', 'proj-grid');
+    S.projects.forEach((p, i) => {
+      const c = el('button', 'widget proj-card', `<div class="pc-top">${projIcon(p)}<span class="pc-n">${String(i + 1).padStart(2, '0')}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="tags">${(p.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div>`);
+      c.onclick = () => open('safari', i);
+      g.appendChild(c);
+    });
+    wrap.appendChild(g); sp.appendChild(wrap);
+  } else if (pg.type === 'about') {
+    const wrap = el('div', 'sp-wrap', `<div class="sp-title">${esc(pg.title)}</div>`);
+    const g = el('div', 'about-grid');
+    if (S.notes[aboutNoteIdx()]) g.appendChild(noteWidget(S.notes[aboutNoteIdx()], aboutNoteIdx(), 'big'));
+    if (stackNoteIdx() >= 0) g.appendChild(noteWidget(S.notes[stackNoteIdx()], stackNoteIdx(), 'stack'));
+    if (S.markets?.length) g.appendChild(marketsWidget());
+    g.appendChild(contactWidget());
+    wrap.appendChild(g); sp.appendChild(wrap);
+  }
+  return sp;
+}
+
+// --- phone page builders ---
+const phoneIcon = (iconHtml, label, onclick, href) => {
+  const t = el(href ? 'a' : 'button', 'ph-app', `${iconHtml}<span>${esc(label)}</span>`);
+  if (href) { t.href = href; t.target = '_blank'; t.rel = 'noopener'; } else t.onclick = onclick;
   return t;
 };
-['calendar', 'photos', 'markets', 'games', 'terminal', 'guestbook', 'settings'].forEach(id => grid.appendChild(phoneIcon(id, APPS[id].name)));
-(S.socials || []).forEach(s => grid.appendChild(phoneIcon(s.icon, s.name, s.url)));
-['safari', 'notes', 'mail'].forEach(id => phDock.appendChild(phoneIcon(id, APPS[id].name)));
+function phonePage(pg) {
+  const p = el('section', 'ph-page');
+  p.setAttribute('aria-label', pg.title);
+  if (pg.type === 'home') {
+    p.appendChild(el('div', 'ph-widget', `<div class="w-kicker">Hello, I'm</div><div class="ph-name">${esc(S.name)}</div><div class="ph-tag">${esc(S.tagline)}</div>`));
+    const m = el('div', 'minis ph-minis'); if (S.weather) m.appendChild(weatherWidget()); if (S.nowPlaying?.title) m.appendChild(nowPlayingWidget());
+    p.appendChild(m);
+    const g = el('div', 'ph-grid');
+    ['calendar', 'photos', 'markets', 'games', 'terminal', 'guestbook', 'settings'].forEach(id => g.appendChild(phoneIcon(icon(id), APPS[id].name, () => openSheet(id))));
+    p.appendChild(g);
+  } else if (pg.type === 'projects') {
+    const f = S.projects[0];
+    if (f) { const c = el('button', 'widget proj-card ph-feat', `<div class="pc-top">${projIcon(f)}<span class="pc-n">Featured</span></div><h3>${esc(f.name)}</h3><p>${esc(f.desc)}</p>`); c.onclick = () => openSheet('safari', 0); p.appendChild(c); }
+    const g = el('div', 'ph-grid');
+    S.projects.forEach((pr, i) => g.appendChild(phoneIcon(projIcon(pr), pr.name, () => openSheet('safari', i))));
+    p.appendChild(g);
+  } else if (pg.type === 'about') {
+    if (S.notes[aboutNoteIdx()]) p.appendChild(noteWidget(S.notes[aboutNoteIdx()], aboutNoteIdx(), 'ph-note'));
+    const row = el('div', 'minis ph-minis');
+    if (S.markets?.length) row.appendChild(marketsWidget());
+    if (stackNoteIdx() >= 0) row.appendChild(noteWidget(S.notes[stackNoteIdx()], stackNoteIdx(), 'stack'));
+    p.appendChild(row);
+    const g = el('div', 'ph-grid');
+    (S.socials || []).forEach(s => g.appendChild(phoneIcon(icon(s.icon), s.name, null, s.url)));
+    g.appendChild(phoneIcon(icon('mail'), 'Email', () => openSheet('mail')));
+    p.appendChild(g);
+  }
+  return p;
+}
+
+// --- pager: native scroll-snap + dots + keys + mouse drag + wheel ---
+function pager(track, dotsEl, pages, { wall } = {}) {
+  const dots = pages.map((pg, i) => { const d = el('button', 'dot-b', ''); d.setAttribute('role', 'tab'); d.setAttribute('aria-label', `${pg.title} (page ${i + 1})`); d.onclick = () => go(i); dotsEl.appendChild(d); return d; });
+  if (pages.length < 2) dotsEl.hidden = true;
+  let cur = 0;
+  const go = (i, smooth = true) => { i = Math.max(0, Math.min(pages.length - 1, i)); track.scrollTo({ left: i * track.clientWidth, behavior: smooth ? 'smooth' : 'auto' }); };
+  const sync = () => {
+    const x = track.scrollLeft / (track.clientWidth || 1);
+    const i = Math.round(x);
+    if (wall) wall.style.setProperty('--px', Math.max(-6, -x * 2) + '%');
+    if (i !== cur) { cur = i; }
+    dots.forEach((d, j) => { d.classList.toggle('on', j === cur); d.setAttribute('aria-selected', j === cur); });
+    track.querySelectorAll(':scope > section').forEach((s, j) => s.toggleAttribute('inert', j !== cur && Math.abs(x - j) > .5));
+  };
+  track.addEventListener('scroll', sync, { passive: true });
+  addEventListener('resize', () => go(cur, false));
+  // mouse drag on empty space (touch already swipes natively)
+  let dx = null, sl = 0, moved = false;
+  track.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button, a, input, .widget')) return;
+    dx = e.clientX; sl = track.scrollLeft; moved = false; track.classList.add('dragging');
+  });
+  addEventListener('pointermove', e => { if (dx == null) return; const d = e.clientX - dx; if (Math.abs(d) > 3) moved = true; track.scrollLeft = sl - d; });
+  addEventListener('pointerup', e => {
+    if (dx == null) return;
+    const d = e.clientX - dx; dx = null; track.classList.remove('dragging');
+    go(Math.abs(d) > track.clientWidth * .12 ? cur + (d < 0 ? 1 : -1) : cur);
+  });
+  // vertical mouse wheel flips pages (trackpads swipe sideways natively)
+  let wlock = 0;
+  track.addEventListener('wheel', e => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.target.closest('.win')) return;
+    const sc = e.target.closest('.sp-wrap, .ph-page');
+    if (sc && sc.scrollHeight > sc.clientHeight + 4) return;
+    if (Math.abs(e.deltaY) < 25 || Date.now() < wlock) return;
+    wlock = Date.now() + 650; go(cur + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: true });
+  sync();
+  return { go, get cur() { return cur; }, count: pages.length };
+}
+
+const spacesEl = $('#spaces');
+PAGES.forEach(pg => spacesEl.appendChild(deskSpace(pg)));
+const deskPager = pager(spacesEl, $('#deskDots'), PAGES, { wall: $('#desktop .wall') });
+$('#spPrev').onclick = () => deskPager.go(deskPager.cur - 1);
+$('#spNext').onclick = () => deskPager.go(deskPager.cur + 1);
+const syncArrows = () => { $('#spPrev').hidden = deskPager.cur === 0; $('#spNext').hidden = deskPager.cur >= deskPager.count - 1; };
+spacesEl.addEventListener('scroll', syncArrows, { passive: true }); syncArrows();
+
+const phPagesEl = $('#phPages');
+PAGES.forEach(pg => phPagesEl.appendChild(phonePage(pg)));
+const phPager = pager(phPagesEl, $('#phDots'), PAGES, { wall: $('#phone .wall') });
+const phDock = $('#phDock');
+['safari', 'notes', 'mail'].forEach(id => phDock.appendChild(phoneIcon(icon(id), APPS[id].name, () => openSheet(id))));
+
+document.addEventListener('keydown', e => {
+  if (!unlocked || e.target.closest('input, textarea') || $('.spot, .about, .lightbox, .sheet') || e.metaKey || e.altKey) return;
+  if (activeGame && openWins.games?.classList.contains('focused')) return;
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const pgr = isPhone() ? phPager : deskPager;
+  pgr.go(pgr.cur + (e.key === 'ArrowRight' ? 1 : -1));
+});
 
 function openSheet(id, arg) {
   const a = APPS[id];

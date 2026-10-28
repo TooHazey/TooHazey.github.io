@@ -39,7 +39,8 @@
         "Minecraft",
         "JavaScript",
         "Bedrock API"
-      ]
+      ],
+      "icon": ""
     },
     {
       "name": "Discord Bots",
@@ -49,7 +50,8 @@
         "Python",
         "discord.py",
         "Self-hosted"
-      ]
+      ],
+      "icon": ""
     },
     {
       "name": "Trading Bot",
@@ -59,7 +61,8 @@
         "Python",
         "FastAPI",
         "PostgreSQL"
-      ]
+      ],
+      "icon": ""
     },
     {
       "name": "Game Engine",
@@ -69,7 +72,8 @@
         "Engine",
         "ECS",
         "Rendering"
-      ]
+      ],
+      "icon": ""
     },
     {
       "name": "Full-stack Apps",
@@ -79,7 +83,8 @@
         "TypeScript",
         "React",
         "Redis"
-      ]
+      ],
+      "icon": ""
     }
   ],
   "notes": [
@@ -160,6 +165,20 @@
     {
       "name": "Crystal Cave",
       "src": "media/wall-cave.jpg"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "type": "home"
+    },
+    {
+      "title": "Projects",
+      "type": "projects"
+    },
+    {
+      "title": "About",
+      "type": "about"
     }
   ]
 }

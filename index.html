@@ -45,17 +45,11 @@
     </div>
   </header>
 
-  <!-- desktop widgets -->
-  <div class="deskcol">
-  <aside class="widget hello" id="helloWidget">
-    <div class="w-kicker">Hello, I'm</div>
-    <h1 class="w-name" id="wName"></h1>
-    <p class="w-tag" id="wTag"></p>
-    <div class="w-meta"><span class="dot"></span><span id="wLoc"></span></div>
-    <div class="w-hint">Open an app from the dock · Ctrl K to search · right-click the desktop</div>
-  </aside>
-  <div class="minis" id="deskMinis"></div>
-  </div>
+  <!-- desktop spaces (swipeable pages) -->
+  <div class="spaces" id="spaces" aria-roledescription="carousel"></div>
+  <button class="sp-arrow prev" id="spPrev" aria-label="Previous page">‹</button>
+  <button class="sp-arrow next" id="spNext" aria-label="Next page">›</button>
+  <div class="dots desk-dots" id="deskDots" role="tablist" aria-label="Pages"></div>
 
   <div id="windows"></div>
 
@@ -66,13 +60,8 @@
 <main id="phone" aria-label="Home screen" hidden>
   <div class="wall"></div>
   <div class="ph-status"><span id="phClock"></span><span class="ph-icons">●●● ▮</span></div>
-  <div class="ph-widget">
-    <div class="w-kicker">Hello, I'm</div>
-    <div class="ph-name" id="phName"></div>
-    <div class="ph-tag" id="phTag"></div>
-  </div>
-  <div class="minis ph-minis" id="phMinis"></div>
-  <div class="ph-grid" id="phGrid"></div>
+  <div class="ph-pages" id="phPages" aria-roledescription="carousel"></div>
+  <div class="dots ph-dots" id="phDots" role="tablist" aria-label="Pages"></div>
   <div class="ph-dock" id="phDock"></div>
   <div id="sheets"></div>
 </main>

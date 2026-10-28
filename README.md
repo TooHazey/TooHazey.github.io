@@ -10,3 +10,4 @@ Live: https://toohazey.github.io/
 ## Apps
 Calendar, Photos, Safari (projects), Notes, Markets (live crypto via CoinGecko), Snake, Terminal,
 Guestbook, Mail, Settings (wallpaper + accent). Plus Spotlight (Ctrl K), right-click menu, weather and Now Playing widgets.
+Swipeable pages (Home, Projects, About) on desktop and phone — manage them in the editor under Pages.

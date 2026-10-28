@@ -64,6 +64,9 @@ const SECTIONS = [
     { key: 'email', label: 'Contact email', help: 'Used by the Mail app. Visible to visitors.' },
     { key: 'accent', label: 'Accent color', type: 'color' },
   ]},
+  { id: 'pages', title: 'Pages', hint: 'The swipeable screens, in order. Home has your intro, weather and apps; Projects shows every project; About shows your notes, markets and contact card.', fields: [
+    { key: 'pages', label: 'Pages', type: 'list', item: 'Page', fields: [{ key: 'title', label: 'Title' }, { key: 'type', label: 'Layout', type: 'select', options: ['home', 'projects', 'about'] }], blank: { title: 'New page', type: 'projects' } },
+  ]},
   { id: 'look', title: 'Wallpapers', hint: 'The lock screen image, default desktop and the choices in Settings.', fields: [
     { key: 'lockWallpaper', label: 'Lock screen image', type: 'image' },
     { key: 'desktopWallpaper', label: 'Default desktop wallpaper', type: 'image' },
@@ -73,7 +76,7 @@ const SECTIONS = [
     { key: 'notifications', label: 'Notifications', type: 'list', item: 'Notification', fields: [{ key: 'title', label: 'Title' }, { key: 'body', label: 'Message', type: 'textarea' }, { key: 'time', label: 'Time label', help: 'e.g. now, 2h ago' }, { key: 'icon', label: 'Icon', type: 'select', options: ICONS }], blank: { title: 'New notification', body: '', time: 'now', icon: 'gh' } },
   ]},
   { id: 'projects', title: 'Projects', hint: 'Each project is a tab in the Safari app.', fields: [
-    { key: 'projects', label: 'Projects', type: 'list', item: 'Project', fields: [{ key: 'name', label: 'Name' }, { key: 'url', label: 'Link (optional)' }, { key: 'desc', label: 'Description', type: 'textarea' }, { key: 'tags', label: 'Tags', type: 'tags', help: 'Separate with commas.' }], blank: { name: 'New project', url: '', desc: '', tags: [] } },
+    { key: 'projects', label: 'Projects', type: 'list', item: 'Project', fields: [{ key: 'name', label: 'Name' }, { key: 'url', label: 'Link (optional)' }, { key: 'icon', label: 'App icon (optional)', type: 'image', help: 'Square image. Leave empty for an auto-made icon with initials.' }, { key: 'desc', label: 'Description', type: 'textarea' }, { key: 'tags', label: 'Tags', type: 'tags', help: 'Separate with commas.' }], blank: { name: 'New project', url: '', icon: '', desc: '', tags: [] } },
   ]},
   { id: 'notes', title: 'Notes', hint: 'Pages in the Notes app — about you, what you’re building, your stack.', fields: [
     { key: 'notes', label: 'Notes', type: 'list', item: 'Note', fields: [{ key: 'title', label: 'Title' }, { key: 'date', label: 'Date label', help: 'e.g. Today, Pinned' }, { key: 'body', label: 'Text', type: 'textarea', rows: 8, help: 'New lines are kept. Start a line with • for bullets.' }], blank: { title: 'New note', date: 'Today', body: '' } },
