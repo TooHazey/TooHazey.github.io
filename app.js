@@ -565,104 +565,200 @@ function weatherWidget(cls) {
   getWeather().then(x => { if (!x) { $('.wx-d', w).textContent = 'Unavailable'; return; } w.innerHTML = `<small>${esc(S.weather.label)}</small><div class="wx-t">${x.t}°</div><div class="wx-d">${x.emo} ${x.desc}<br>H:${x.hi}° L:${x.lo}°</div>`; });
   return w;
 }
-let mixAudio = null;
-function mixFile() { return S.nowPlaying?.audio || ''; }
-function mixAudible() {
-  return !!(mixAudio && !mixAudio.paused && !mixAudio.muted && mixAudio.volume > 0.01);
+const YT_PLAYING = 1, YT_BUFFERING = 3;
+let ytPlayer = null, ytReady = false, ytWantPlay = false, ytFailed = false, ytEmbedBlocked = false;
+function videoId() {
+  const raw = String(S.nowPlaying?.video || '');
+  if (/^[A-Za-z0-9_-]{11}$/.test(raw)) return raw;
+  const m = String(raw || S.nowPlaying?.url || '').match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
 }
-function ensureMix() {
-  if (mixAudio || !mixFile()) return mixAudio;
-  const a = new Audio();
-  a.loop = true;
-  a.preload = 'none';
-  a.src = mixFile();
-  a.volume = typeof prefs.mixVol === 'number' ? prefs.mixVol : 0.65;
-  a.muted = !!prefs.mixMuted;
-  const sync = () => paintMix();
-  a.addEventListener('play', sync);
-  a.addEventListener('pause', sync);
-  a.addEventListener('ended', sync);
-  mixAudio = a;
-  return a;
+function mixLink() {
+  const n = S.nowPlaying || {};
+  return n.url || (videoId() ? `https://youtu.be/${videoId()}` : '');
+}
+function loadYouTubeAPI() {
+  if (window.YT && YT.Player) return Promise.resolve();
+  window.__ytLoad = window.__ytLoad || new Promise(resolve => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { if (typeof prev === 'function') prev(); resolve(); };
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  });
+  return window.__ytLoad;
+}
+function ytState() {
+  try { return ytPlayer && ytReady && ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : -1; } catch { return -1; }
+}
+function ytIsMuted() {
+  if (prefs.mixMuted) return true;
+  try { return !!(ytPlayer && ytReady && ytPlayer.isMuted && ytPlayer.isMuted()); } catch { return false; }
+}
+function mixLive() {
+  const s = ytState();
+  return (s === YT_PLAYING || s === YT_BUFFERING) && !ytIsMuted();
+}
+function ensureIframe(autoplay) {
+  let host = document.getElementById('yt-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'yt-host';
+    host.className = 'yt-host';
+    host.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(host);
+  }
+  let frame = document.getElementById('yt-frame');
+  if (!frame) {
+    frame = document.createElement('iframe');
+    frame.id = 'yt-frame';
+    frame.title = S.nowPlaying?.title || 'YouTube';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    frame.setAttribute('playsinline', '');
+    const q = new URLSearchParams({
+      enablejsapi: '1', playsinline: '1', rel: '0', modestbranding: '1', controls: '0',
+      autoplay: autoplay ? '1' : '0', mute: prefs.mixMuted ? '1' : '0', origin: location.origin,
+    });
+    frame.src = `https://www.youtube.com/embed/${videoId()}?${q}`;
+    host.appendChild(frame);
+  }
+  return frame;
+}
+function onYTReady() {
+  ytReady = true;
+  try {
+    if (prefs.mixMuted) ytPlayer.mute();
+    else ytPlayer.unMute();
+    const live = ytState() === YT_PLAYING || ytState() === YT_BUFFERING;
+    if (ytWantPlay && !live) ytPlayer.playVideo();
+    if (!ytWantPlay && live) ytPlayer.pauseVideo();
+  } catch {}
+  paintMix();
+}
+function attachPlayer(frame) {
+  if (ytPlayer || !frame || !(window.YT && YT.Player)) return;
+  ytPlayer = new YT.Player(frame, {
+    events: {
+      onReady: onYTReady,
+      onStateChange: () => paintMix(),
+      onError: e => {
+        const code = e?.data;
+        if (code === 101 || code === 150) ytEmbedBlocked = true;
+        else ytFailed = true;
+        ytWantPlay = false;
+        document.getElementById('yt-host')?.remove();
+        ytPlayer = null;
+        ytReady = false;
+        paintMix();
+      },
+    },
+  });
+}
+function armYouTube() {
+  if (!videoId()) return;
+  loadYouTubeAPI().then(() => {
+    const frame = document.getElementById('yt-frame');
+    if (frame) attachPlayer(frame);
+  });
 }
 function paintMix() {
-  const audible = mixAudible();
-  const playing = !!(mixAudio && !mixAudio.paused);
-  const muted = !!(prefs.mixMuted || (mixAudio && mixAudio.muted));
+  const live = mixLive();
+  const audibleBusy = ytState() === YT_PLAYING || ytState() === YT_BUFFERING;
   document.querySelectorAll('[data-mix]').forEach(node => {
-    node.classList.toggle('is-on', audible);
+    node.classList.toggle('is-on', live);
     const kicker = node.querySelector('[data-mix-kicker]');
-    if (kicker) kicker.textContent = audible ? 'Now playing' : (playing && muted ? 'Muted' : (mixFile() ? 'Tap to play' : 'No audio'));
+    const label = ytEmbedBlocked ? 'Play on YouTube' : ytFailed ? 'Unavailable' : live ? 'Now playing' : (audibleBusy && ytIsMuted() ? 'Muted' : (ytWantPlay ? 'Starting…' : (videoId() ? 'Tap to play' : 'No audio')));
+    if (kicker) kicker.textContent = label;
     const toggle = node.querySelector('[data-mix-toggle]');
     if (toggle) {
-      toggle.setAttribute('aria-pressed', audible ? 'true' : 'false');
+      toggle.setAttribute('aria-pressed', live ? 'true' : 'false');
       const title = S.nowPlaying?.title || 'mix';
-      toggle.setAttribute('aria-label', audible ? `Pause ${title}` : `Play ${title}`);
+      toggle.setAttribute('aria-label', ytEmbedBlocked ? `Play ${title} on YouTube` : live ? `Pause ${title}` : `Play ${title}`);
     }
     const mute = node.querySelector('[data-mix-mute]');
     if (mute) {
+      const muted = ytIsMuted();
       mute.setAttribute('aria-pressed', muted ? 'true' : 'false');
-      mute.setAttribute('aria-label', muted ? 'Unmute mix' : 'Mute mix');
+      mute.setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
       mute.textContent = muted ? '🔇' : '🔊';
     }
   });
 }
 function playOrPauseMix() {
-  const a = ensureMix();
-  if (!a) return;
-  if (a.paused) {
-    a.muted = !!prefs.mixMuted;
-    a.volume = typeof prefs.mixVol === 'number' ? prefs.mixVol : 0.65;
-    const pending = a.play();
-    if (pending && pending.catch) pending.catch(() => paintMix());
-  } else a.pause();
+  if (!videoId() || ytFailed) return;
+  if (ytEmbedBlocked) { window.open(mixLink(), '_blank', 'noopener'); return; }
+  const live = ytState() === YT_PLAYING || ytState() === YT_BUFFERING;
+  if (ytReady && ytPlayer) {
+    ytWantPlay = !live;
+    if (live) ytPlayer.pauseVideo();
+    else {
+      if (prefs.mixMuted) ytPlayer.mute();
+      else ytPlayer.unMute();
+      ytPlayer.playVideo();
+    }
+    paintMix();
+    return;
+  }
+  if (!document.getElementById('yt-frame')) {
+    ytWantPlay = true;
+    const frame = ensureIframe(true);
+    if (window.YT && YT.Player) attachPlayer(frame);
+    else loadYouTubeAPI().then(() => attachPlayer(document.getElementById('yt-frame')));
+  } else ytWantPlay = !ytWantPlay;
+  paintMix();
 }
 function toggleMixMute() {
   prefs.mixMuted = !prefs.mixMuted;
   savePrefs();
-  if (mixAudio) {
-    mixAudio.muted = !!prefs.mixMuted;
-    if (!prefs.mixMuted && !mixAudio.paused) {
-      const pending = mixAudio.play();
-      if (pending && pending.catch) pending.catch(() => paintMix());
+  if (ytReady && ytPlayer) {
+    if (prefs.mixMuted) ytPlayer.mute();
+    else {
+      ytPlayer.unMute();
+      if (ytState() === YT_PLAYING || ytState() === YT_BUFFERING) ytPlayer.playVideo();
     }
   }
   paintMix();
 }
 function stopMix() {
-  if (mixAudio && !mixAudio.paused) mixAudio.pause();
+  ytWantPlay = false;
+  if (ytReady && ytPlayer) {
+    const s = ytState();
+    if (s === YT_PLAYING || s === YT_BUFFERING) ytPlayer.pauseVideo();
+  }
 }
 function mixFace() {
   const n = S.nowPlaying || {};
   const wrap = el('div', 'ns-cell ns-np');
   wrap.dataset.mix = '1';
-  const play = el('button', 'ns-play', `<span class="np-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><small data-mix-kicker>${mixFile() ? 'Tap to play' : 'No audio'}</small><b>${esc(n.title || 'Mix')}</b><span class="ns-artist">${esc(n.artist || '')}</span>`);
+  const play = el('button', 'ns-play', `<span class="np-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><small data-mix-kicker>${videoId() ? 'Tap to play' : 'No audio'}</small><b>${esc(n.title || 'Mix')}</b><span class="ns-artist">${esc(n.artist || '')}</span>`);
   play.type = 'button';
   play.dataset.mixToggle = '1';
   play.setAttribute('aria-pressed', 'false');
   play.setAttribute('aria-label', `Play ${n.title || 'mix'}`);
   play.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); playOrPauseMix(); });
   wrap.appendChild(play);
-  if (mixFile()) {
+  if (videoId()) {
     const mute = el('button', 'ns-mute', prefs.mixMuted ? '🔇' : '🔊');
     mute.type = 'button';
     mute.dataset.mixMute = '1';
-    mute.setAttribute('aria-label', prefs.mixMuted ? 'Unmute mix' : 'Mute mix');
+    mute.setAttribute('aria-label', prefs.mixMuted ? 'Unmute' : 'Mute');
     mute.setAttribute('aria-pressed', prefs.mixMuted ? 'true' : 'false');
     mute.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggleMixMute(); });
     wrap.appendChild(mute);
   }
-  if (n.url) {
+  const href = mixLink();
+  if (href) {
     const openMix = el('a', 'ns-open', 'Mix ↗');
-    openMix.href = n.url;
+    openMix.href = href;
     openMix.target = '_blank';
     openMix.rel = 'noopener';
-    openMix.setAttribute('aria-label', 'Open mix');
+    openMix.setAttribute('aria-label', 'Open on YouTube');
     openMix.addEventListener('click', e => e.stopPropagation());
     wrap.appendChild(openMix);
   }
   return wrap;
 }
+armYouTube();
 function nowPlayingWidget(cls) {
   const n = S.nowPlaying || {};
   const w = el('div', 'mini np ' + (cls || ''));

@@ -566,6 +566,8 @@ html.polish .widget,html.polish .mini,html.polish .now-strip,html.polish .dock,h
 .ns-cell span{font-size:11px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .now-strip .np-eq{position:static;height:10px;margin-bottom:3px}
 .ns-np{position:relative;padding:0;display:flex;overflow:hidden}
+.yt-host{position:fixed;width:200px;height:113px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0;overflow:hidden}
+.yt-host iframe{width:200px;height:113px;border:0}
 .ns-play{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;width:100%;min-height:64px;padding:10px 30px 2px 12px;text-align:left}
 .ns-mute{position:absolute;top:6px;right:6px;z-index:1;width:24px;height:24px;border-radius:8px;font-size:12px;line-height:1;background:rgba(0,0,0,.3)}
 .ns-mute:hover,.ns-mute:focus-visible{background:rgba(0,0,0,.5)}

@@ -109,11 +109,11 @@
     }
   ],
   "nowPlaying": {
-    "title": "Late Night Builds",
-    "artist": "Ambient loop",
-    "audio": "media/night-loop.mp3",
-    "url": "https://www.youtube.com/results?search_query=lofi+coding+mix",
-    "cover": "media/cover.jpg"
+    "title": "Hall of Fame",
+    "artist": "The Script",
+    "video": "3Kxf2dHlDpQ",
+    "url": "https://youtu.be/3Kxf2dHlDpQ",
+    "cover": "https://i.ytimg.com/vi/3Kxf2dHlDpQ/hqdefault.jpg"
   },
   "weather": {
     "label": "Southfield",
