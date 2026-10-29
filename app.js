@@ -70,6 +70,7 @@ function applyLook() {
   root.classList.toggle('quiet', !!prefs.mute);
   root.classList.toggle('polish', !!prefs.polish);
   if (!motionOn()) document.querySelectorAll('.wall').forEach(w => { w.style.removeProperty('--mx'); w.style.removeProperty('--my'); });
+  if (prefs.mute) stopMix();
 }
 root.style.setProperty('--lock-img', `url("${S.lockWallpaper}")`);
 applyLook();
@@ -564,10 +565,111 @@ function weatherWidget(cls) {
   getWeather().then(x => { if (!x) { $('.wx-d', w).textContent = 'Unavailable'; return; } w.innerHTML = `<small>${esc(S.weather.label)}</small><div class="wx-t">${x.t}°</div><div class="wx-d">${x.emo} ${x.desc}<br>H:${x.hi}° L:${x.lo}°</div>`; });
   return w;
 }
+let mixAudio = null;
+function mixFile() { return S.nowPlaying?.audio || ''; }
+function mixAudible() {
+  return !!(mixAudio && !mixAudio.paused && !mixAudio.muted && mixAudio.volume > 0.01);
+}
+function ensureMix() {
+  if (mixAudio || !mixFile()) return mixAudio;
+  const a = new Audio();
+  a.loop = true;
+  a.preload = 'none';
+  a.src = mixFile();
+  a.volume = typeof prefs.mixVol === 'number' ? prefs.mixVol : 0.65;
+  a.muted = !!prefs.mixMuted;
+  const sync = () => paintMix();
+  a.addEventListener('play', sync);
+  a.addEventListener('pause', sync);
+  a.addEventListener('ended', sync);
+  mixAudio = a;
+  return a;
+}
+function paintMix() {
+  const audible = mixAudible();
+  const playing = !!(mixAudio && !mixAudio.paused);
+  const muted = !!(prefs.mixMuted || (mixAudio && mixAudio.muted));
+  document.querySelectorAll('[data-mix]').forEach(node => {
+    node.classList.toggle('is-on', audible);
+    const kicker = node.querySelector('[data-mix-kicker]');
+    if (kicker) kicker.textContent = audible ? 'Now playing' : (playing && muted ? 'Muted' : (mixFile() ? 'Tap to play' : 'No audio'));
+    const toggle = node.querySelector('[data-mix-toggle]');
+    if (toggle) {
+      toggle.setAttribute('aria-pressed', audible ? 'true' : 'false');
+      const title = S.nowPlaying?.title || 'mix';
+      toggle.setAttribute('aria-label', audible ? `Pause ${title}` : `Play ${title}`);
+    }
+    const mute = node.querySelector('[data-mix-mute]');
+    if (mute) {
+      mute.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      mute.setAttribute('aria-label', muted ? 'Unmute mix' : 'Mute mix');
+      mute.textContent = muted ? '🔇' : '🔊';
+    }
+  });
+}
+function playOrPauseMix() {
+  const a = ensureMix();
+  if (!a) return;
+  if (a.paused) {
+    a.muted = !!prefs.mixMuted;
+    a.volume = typeof prefs.mixVol === 'number' ? prefs.mixVol : 0.65;
+    const pending = a.play();
+    if (pending && pending.catch) pending.catch(() => paintMix());
+  } else a.pause();
+}
+function toggleMixMute() {
+  prefs.mixMuted = !prefs.mixMuted;
+  savePrefs();
+  if (mixAudio) {
+    mixAudio.muted = !!prefs.mixMuted;
+    if (!prefs.mixMuted && !mixAudio.paused) {
+      const pending = mixAudio.play();
+      if (pending && pending.catch) pending.catch(() => paintMix());
+    }
+  }
+  paintMix();
+}
+function stopMix() {
+  if (mixAudio && !mixAudio.paused) mixAudio.pause();
+}
+function mixFace() {
+  const n = S.nowPlaying || {};
+  const wrap = el('div', 'ns-cell ns-np');
+  wrap.dataset.mix = '1';
+  const play = el('button', 'ns-play', `<span class="np-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><small data-mix-kicker>${mixFile() ? 'Tap to play' : 'No audio'}</small><b>${esc(n.title || 'Mix')}</b><span class="ns-artist">${esc(n.artist || '')}</span>`);
+  play.type = 'button';
+  play.dataset.mixToggle = '1';
+  play.setAttribute('aria-pressed', 'false');
+  play.setAttribute('aria-label', `Play ${n.title || 'mix'}`);
+  play.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); playOrPauseMix(); });
+  wrap.appendChild(play);
+  if (mixFile()) {
+    const mute = el('button', 'ns-mute', prefs.mixMuted ? '🔇' : '🔊');
+    mute.type = 'button';
+    mute.dataset.mixMute = '1';
+    mute.setAttribute('aria-label', prefs.mixMuted ? 'Unmute mix' : 'Mute mix');
+    mute.setAttribute('aria-pressed', prefs.mixMuted ? 'true' : 'false');
+    mute.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggleMixMute(); });
+    wrap.appendChild(mute);
+  }
+  if (n.url) {
+    const openMix = el('a', 'ns-open', 'Mix ↗');
+    openMix.href = n.url;
+    openMix.target = '_blank';
+    openMix.rel = 'noopener';
+    openMix.setAttribute('aria-label', 'Open mix');
+    openMix.addEventListener('click', e => e.stopPropagation());
+    wrap.appendChild(openMix);
+  }
+  return wrap;
+}
 function nowPlayingWidget(cls) {
   const n = S.nowPlaying || {};
-  const w = el('a', 'mini np ' + (cls || ''), `<div class="np-art" style="background-image:url('${esc(n.cover || '')}')"></div><div class="np-txt"><small>Now playing</small><b>${esc(n.title || '')}</b><span>${esc(n.artist || '')}</span></div><div class="np-eq"><i></i><i></i><i></i><i></i></div>`);
-  if (n.url) { w.href = n.url; w.target = '_blank'; w.rel = 'noopener'; }
+  const w = el('div', 'mini np ' + (cls || ''));
+  if (n.cover) w.style.backgroundImage = `url("${n.cover}")`;
+  const face = mixFace();
+  face.classList.add('np-face');
+  w.appendChild(face);
   return w;
 }
 
@@ -1077,11 +1179,9 @@ function socialLabel(s) {
 
 // ---------- Now strip ----------
 function nowStrip(cls) {
-  const n = S.nowPlaying || {};
   const w = el('div', 'now-strip' + (cls ? ' ' + cls : ''));
   const wx = el('div', 'ns-cell ns-wx', `<small>${esc(S.weather?.label || 'Weather')}</small><b>--°</b><span>Loading…</span>`);
-  const np = el(n.url ? 'a' : 'div', 'ns-cell ns-np', `<span class="np-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><small>Now playing</small><b>${esc(n.title || 'Quiet')}</b><span>${esc(n.artist || '')}</span>`);
-  if (n.url) { np.href = n.url; np.target = '_blank'; np.rel = 'noopener'; }
+  const np = mixFace();
   const fg = el('button', 'ns-cell ns-fg', `<small>Fear &amp; Greed</small><b>--</b><span>Loading…</span>`);
   fg.type = 'button';
   fg.onclick = () => open('markets');

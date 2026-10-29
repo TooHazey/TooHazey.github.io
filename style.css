@@ -235,8 +235,9 @@ input,textarea{font:inherit;color:inherit}
 .np-txt small{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);opacity:1}
 .np-txt b{font-size:14px;margin-top:3px}.np-txt span{font-size:12px;opacity:.75}
 .np-eq{position:absolute;top:12px;right:12px;display:flex;gap:2px;align-items:flex-end;height:14px}
-.np-eq i{width:3px;background:#fff;border-radius:1px;animation:eq 1s ease-in-out infinite}
-.np-eq i:nth-child(2){animation-delay:-.3s}.np-eq i:nth-child(3){animation-delay:-.6s}.np-eq i:nth-child(4){animation-delay:-.15s}
+.np-eq i{width:3px;height:3px;background:#fff;border-radius:1px}
+.is-on .np-eq i{animation:eq 1s ease-in-out infinite}
+.is-on .np-eq i:nth-child(2){animation-delay:-.3s}.is-on .np-eq i:nth-child(3){animation-delay:-.6s}.is-on .np-eq i:nth-child(4){animation-delay:-.15s}
 @keyframes eq{0%,100%{height:3px}50%{height:14px}}
 @media (max-height:700px){.minis{display:none}}
 
@@ -564,6 +565,12 @@ html.polish .widget,html.polish .mini,html.polish .now-strip,html.polish .dock,h
 .ns-cell b{font-size:15px;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ns-cell span{font-size:11px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .now-strip .np-eq{position:static;height:10px;margin-bottom:3px}
+.ns-np{position:relative;padding:0;display:flex;overflow:hidden}
+.ns-play{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;width:100%;min-height:64px;padding:10px 30px 2px 12px;text-align:left}
+.ns-mute{position:absolute;top:6px;right:6px;z-index:1;width:24px;height:24px;border-radius:8px;font-size:12px;line-height:1;background:rgba(0,0,0,.3)}
+.ns-mute:hover,.ns-mute:focus-visible{background:rgba(0,0,0,.5)}
+.ns-open{align-self:flex-start;margin:0 0 8px 12px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);text-decoration:none}
+.ns-artist{display:block;max-width:100%}
 .now-strip.ph{margin:14px 20px 0}
 button.ns-cell:hover,a.ns-cell:hover{background:rgba(255,255,255,.05)}
 @media (max-height:680px){.space .now-strip{display:none}}

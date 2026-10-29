@@ -87,7 +87,8 @@ const SECTIONS = [
   { id: 'widgets', title: 'Widgets', hint: 'Now Playing, weather, GitHub, Discord and the Markets app (with the Fear & Greed gauge).', fields: [
     { key: 'nowPlaying.title', label: 'Now playing — title' },
     { key: 'nowPlaying.artist', label: 'Now playing — artist' },
-    { key: 'nowPlaying.url', label: 'Now playing — link', help: 'Spotify, YouTube, SoundCloud…' },
+    { key: 'nowPlaying.audio', label: 'Now playing — audio file', help: 'What the site actually plays after a tap, for example media/night-loop.mp3. Nothing plays on load.' },
+    { key: 'nowPlaying.url', label: 'Now playing — external mix link', help: 'Optional. Shown as “Open mix”. The site does not play this URL.' },
     { key: 'nowPlaying.cover', label: 'Now playing — cover art', type: 'image' },
     { key: 'weather.label', label: 'Weather — city name' },
     { key: 'weather.lat', label: 'Weather — latitude', type: 'number' },

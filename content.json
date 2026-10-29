@@ -110,7 +110,8 @@
   ],
   "nowPlaying": {
     "title": "Late Night Builds",
-    "artist": "Lo-fi coding mix",
+    "artist": "Ambient loop",
+    "audio": "media/night-loop.mp3",
     "url": "https://www.youtube.com/results?search_query=lofi+coding+mix",
     "cover": "media/cover.jpg"
   },
