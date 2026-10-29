@@ -1,7 +1,7 @@
 {
   "handle": "ryan",
   "name": "Ryan Dhooghe",
-  "tagline": "Developer — Minecraft addons, Discord bots, trading tools and game engines.",
+  "tagline": "I build tools and dashboards — CRMs, market screens, and Power BI.",
   "location": "Southfield, Michigan",
   "email": "rdhooghe1999@gmail.com",
   "accent": "#ff8a3d",
@@ -11,79 +11,56 @@
     {
       "app": "GitHub",
       "icon": "gh",
-      "title": "New commit pushed",
-      "body": "trading-bot: added paper-trading mode and risk limits.",
+      "title": "PULSE CRM updated",
+      "body": "Quotes, shelf stock, and deliveries for an electrical-distributor demo.",
       "time": "now"
     },
     {
-      "app": "Discord",
-      "icon": "dc",
-      "title": "Bot is online",
-      "body": "Your bot just came back up on the home server. Uptime 99.9%.",
-      "time": "12m ago"
+      "app": "Markets",
+      "icon": "markets",
+      "title": "Meme screens are live",
+      "body": "MemeCoiner scans new pools. MUCH WOW keeps the field guide moving.",
+      "time": "2h ago"
     },
     {
-      "app": "Minecraft",
-      "icon": "mc",
-      "title": "Addon update live",
-      "body": "v2.3 of the Bedrock pack is out — new blocks, mobs and UI.",
-      "time": "1h ago"
+      "app": "Safari",
+      "icon": "safari",
+      "title": "B & J Spray Foam",
+      "body": "Client site for insulation and air sealing across mid-Michigan.",
+      "time": "1d ago"
     }
   ],
   "projects": [
     {
-      "name": "Bedrock Addons",
-      "url": "https://github.com/TooHazey",
-      "desc": "Custom Minecraft Bedrock Edition addons and resource packs — blocks, entities, scripting and UI, built with JSON + JavaScript.",
-      "tags": [
-        "Minecraft",
-        "JavaScript",
-        "Bedrock API"
-      ],
+      "name": "PULSE CRM",
+      "url": "https://github.com/TooHazey/pulse-crm",
+      "demo": "https://toohazey.github.io/pulse-crm/",
+      "desc": "A static CRM for electrical-distribution demos: multi-line quotes, shelf stock, orders, and job-site deliveries. The sample book is inspired by counter sales at Marshall E. Campbell. It is a prototype, not an official product.",
+      "tags": ["JavaScript", "CRM", "Inventory"],
       "icon": ""
     },
     {
-      "name": "Discord Bots",
-      "url": "https://github.com/TooHazey",
-      "desc": "Self-hosted Discord bots running on my own hardware — moderation, mini-games, server tools and slash commands.",
-      "tags": [
-        "Python",
-        "discord.py",
-        "Self-hosted"
-      ],
+      "name": "MemeCoiner",
+      "url": "https://github.com/TooHazey/MemeCoiner",
+      "demo": "https://toohazey.github.io/MemeCoiner/",
+      "desc": "Memewatch: a rules-based scanner for new and gaining memecoins. The dashboard scores liquidity, volume, and momentum from public APIs, and a GitHub Action can ping Discord. A screener, not a prediction.",
+      "tags": ["HTML", "Crypto", "Alerts"],
       "icon": ""
     },
     {
-      "name": "Trading Bot",
-      "url": "https://github.com/TooHazey",
-      "desc": "Algorithmic trading assistant with live market data, strategy backtesting, paper trading and a FastAPI dashboard.",
-      "tags": [
-        "Python",
-        "FastAPI",
-        "PostgreSQL"
-      ],
+      "name": "much-wow-memecoins",
+      "url": "https://github.com/TooHazey/much-wow-memecoins",
+      "demo": "https://toohazey.github.io/much-wow-memecoins/",
+      "desc": "MUCH WOW is a meme-coin field guide: a live board, heatmap, sector lore, a rug-pull guide, and a parody coin forge.",
+      "tags": ["JavaScript", "Markets", "Field guide"],
       "icon": ""
     },
     {
-      "name": "Game Engine",
-      "url": "https://github.com/TooHazey",
-      "desc": "An experimental game engine: entity-component system, renderer, input and an asset pipeline — learning by building.",
-      "tags": [
-        "Engine",
-        "ECS",
-        "Rendering"
-      ],
-      "icon": ""
-    },
-    {
-      "name": "Full-stack Apps",
-      "url": "https://github.com/TooHazey",
-      "desc": "Web apps end to end — React/TypeScript front ends, Python backends, Redis caching and auto-updating desktop builds.",
-      "tags": [
-        "TypeScript",
-        "React",
-        "Redis"
-      ],
+      "name": "B & J Spray Foam",
+      "url": "https://github.com/TooHazey/B-J",
+      "demo": "https://toohazey.github.io/B-J/",
+      "desc": "Marketing site for B & J Spray Foam — open- and closed-cell insulation and air sealing for homes, pole barns, and commercial buildings in mid-Michigan.",
+      "tags": ["HTML", "CSS", "Client site"],
       "icon": ""
     }
   ],
@@ -91,17 +68,17 @@
     {
       "title": "About me",
       "date": "Today",
-      "body": "Hey, I'm Ryan. I'm a self-taught developer from Southfield, Michigan.\n\nI learn by building: if I want to understand something, I ship a version of it. That's how I got into Minecraft addons, then Discord bots, then trading tools and now my own game engine.\n\nWhen I'm not coding, I'm usually in Minecraft or Forza Horizon."
+      "body": "Hey, I'm Ryan. I'm a developer in Southfield, Michigan.\n\nI learn by building. Lately that means a CRM demo for electrical distribution, meme-coin screens, and client sites — plus the data work I do with Power BI.\n\nI'm PL-300 certified and I work at Marshall E. Campbell. The dashboards and the side projects scratch the same itch: make the numbers and the workflow easier to see.\n\nWhen I'm not coding, I'm usually in Minecraft or Forza Horizon."
     },
     {
       "title": "What I'm building",
       "date": "This week",
-      "body": "• A trading bot with backtesting + a live dashboard\n• A Bedrock addon pack with custom mobs\n• A tiny game engine, from scratch\n• Auto-updater for my desktop apps"
+      "body": "• PULSE — quotes, inventory, orders, and deliveries for distributor demos\n• MemeCoiner — rules-based memecoin alerts\n• MUCH WOW — a live meme-coin field guide\n• B & J Spray Foam — a mid-Michigan insulation site"
     },
     {
       "title": "Stack",
       "date": "Pinned",
-      "body": "Languages: Python, JavaScript, TypeScript\nBackend: FastAPI, PostgreSQL, Redis\nFront end: React, HTML/CSS\nOther: Discord API, Minecraft Bedrock scripting, Windows builds"
+      "body": "Languages: JavaScript, HTML, CSS\nData: Power BI, PL-300, spreadsheets\nFront end: static sites on GitHub Pages\nOther: public market APIs, localStorage apps, Discord webhooks"
     }
   ],
   "photos": [
@@ -121,14 +98,14 @@
       "url": "https://github.com/TooHazey"
     },
     {
-      "name": "Discord",
-      "icon": "dc",
-      "url": "https://discord.com/"
+      "name": "LinkedIn",
+      "icon": "li",
+      "url": "https://linkedin.com/in/ryandhooghe"
     },
     {
-      "name": "YouTube",
-      "icon": "yt",
-      "url": "https://youtube.com/"
+      "name": "Bluesky",
+      "icon": "bsky",
+      "url": "https://bsky.app/profile/toohazey.bsky.social"
     }
   ],
   "nowPlaying": {

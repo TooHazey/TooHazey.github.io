@@ -54,7 +54,7 @@ $('#signout').onclick = () => { if (dirty && !confirm('You have unsaved changes.
 const saved = readSaved(); if (saved) signIn(saved, null);
 
 // ---------- schema ----------
-const ICONS = ['gh', 'dc', 'yt', 'mc', 'guestbook', 'notes', 'terminal', 'markets', 'games', 'mail', 'safari', 'photos', 'calendar', 'settings', 'link'];
+const ICONS = ['gh', 'li', 'bsky', 'dc', 'yt', 'mc', 'guestbook', 'notes', 'terminal', 'markets', 'games', 'mail', 'safari', 'photos', 'calendar', 'settings', 'messages', 'link'];
 const SECTIONS = [
   { id: 'profile', title: 'Profile', hint: 'Your name and the intro card on the desktop.', fields: [
     { key: 'name', label: 'Full name' },
@@ -76,7 +76,7 @@ const SECTIONS = [
     { key: 'notifications', label: 'Notifications', type: 'list', item: 'Notification', fields: [{ key: 'title', label: 'Title' }, { key: 'body', label: 'Message', type: 'textarea' }, { key: 'time', label: 'Time label', help: 'e.g. now, 2h ago' }, { key: 'icon', label: 'Icon', type: 'select', options: ICONS }], blank: { title: 'New notification', body: '', time: 'now', icon: 'gh' } },
   ]},
   { id: 'projects', title: 'Projects', hint: 'Each project is a tab in the Safari app.', fields: [
-    { key: 'projects', label: 'Projects', type: 'list', item: 'Project', fields: [{ key: 'name', label: 'Name' }, { key: 'url', label: 'Link (optional)' }, { key: 'icon', label: 'App icon (optional)', type: 'image', help: 'Square image. Leave empty for an auto-made icon with initials.' }, { key: 'desc', label: 'Description', type: 'textarea' }, { key: 'tags', label: 'Tags', type: 'tags', help: 'Separate with commas.' }], blank: { name: 'New project', url: '', icon: '', desc: '', tags: [] } },
+    { key: 'projects', label: 'Projects', type: 'list', item: 'Project', fields: [{ key: 'name', label: 'Name' }, { key: 'url', label: 'Repo link (optional)' }, { key: 'demo', label: 'Live demo (optional)', help: 'Second button in Safari, for a GitHub Pages demo.' }, { key: 'icon', label: 'App icon (optional)', type: 'image', help: 'Square image. Leave empty for an auto-made icon with initials.' }, { key: 'desc', label: 'Description', type: 'textarea' }, { key: 'tags', label: 'Tags', type: 'tags', help: 'Separate with commas.' }], blank: { name: 'New project', url: '', demo: '', icon: '', desc: '', tags: [] } },
   ]},
   { id: 'notes', title: 'Notes', hint: 'Pages in the Notes app — about you, what you’re building, your stack.', fields: [
     { key: 'notes', label: 'Notes', type: 'list', item: 'Note', fields: [{ key: 'title', label: 'Title' }, { key: 'date', label: 'Date label', help: 'e.g. Today, Pinned' }, { key: 'body', label: 'Text', type: 'textarea', rows: 8, help: 'New lines are kept. Start a line with • for bullets.' }], blank: { title: 'New note', date: 'Today', body: '' } },
