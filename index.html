@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ryan Dhooghe</title>
-<meta name="description" content="Ryan Dhooghe — developer building Minecraft addons, Discord bots, trading tools and game engines.">
+<meta name="description" content="Ryan Dhooghe — tools, dashboards, and Power BI. CRMs, market screens, and client sites.">
+<script>
+try {
+  var _p = JSON.parse(localStorage.getItem('ryanos-prefs') || '{}');
+  if (_p.booted || matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('skip-boot');
+} catch (e) {}
+</script>
 <meta name="theme-color" content="#0b0b0c">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111'/><text x='16' y='22' font-family='system-ui' font-weight='800' font-size='16' fill='%23ff8a3d' text-anchor='middle'>r</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +18,15 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ============ BOOT ============ -->
+<section id="boot" aria-label="RyanOS startup">
+  <div class="boot-logo" aria-hidden="true">R</div>
+  <div class="boot-name">RyanOS</div>
+  <p class="boot-sub">Ryan Dhooghe</p>
+  <div class="boot-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Starting up"><i></i></div>
+  <button type="button" class="boot-skip" id="bootSkip">Skip</button>
+</section>
 
 <!-- ============ LOCK SCREEN ============ -->
 <section id="lock" aria-label="Lock screen">
@@ -39,6 +54,7 @@
     </div>
     <div class="mb-right">
       <button id="mbSearch" class="mb-ic" aria-label="Spotlight search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+      <button id="mbCc" class="mb-ic" aria-label="Control Center" aria-haspopup="true" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="16" cy="12" r="2.2" fill="currentColor" stroke="none"/><circle cx="8" cy="7" r="2.2" fill="currentColor" stroke="none"/><circle cx="14" cy="17" r="2.2" fill="currentColor" stroke="none"/></svg></button>
       <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.5 6.5 0 0 1 9.2 0l-1.1 1.1a5 5 0 0 0-7 0zM1.2 4.6a9.6 9.6 0 0 1 13.6 0l-1.1 1.1a8 8 0 0 0-11.4 0z"/></svg>
       <svg width="24" height="12" viewBox="0 0 24 12" fill="none" aria-hidden="true"><rect x=".5" y=".5" width="20" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><rect x="21.5" y="4" width="1.5" height="4" rx=".7" fill="currentColor" opacity=".5"/></svg>
       <span id="mbClock"></span>
@@ -59,7 +75,7 @@
 <!-- ============ MOBILE HOME ============ -->
 <main id="phone" aria-label="Home screen" hidden>
   <div class="wall"></div>
-  <div class="ph-status"><span id="phClock"></span><span class="ph-icons">●●● ▮</span></div>
+  <div class="ph-status"><span id="phClock"></span><span class="ph-icons"><button type="button" id="phLaunch" class="ph-ic" aria-label="Launchpad"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="3.2" height="3.2" rx=".6"/><rect x="6.4" y="1" width="3.2" height="3.2" rx=".6"/><rect x="11.8" y="1" width="3.2" height="3.2" rx=".6"/><rect x="1" y="6.4" width="3.2" height="3.2" rx=".6"/><rect x="6.4" y="6.4" width="3.2" height="3.2" rx=".6"/><rect x="11.8" y="6.4" width="3.2" height="3.2" rx=".6"/><rect x="1" y="11.8" width="3.2" height="3.2" rx=".6"/><rect x="6.4" y="11.8" width="3.2" height="3.2" rx=".6"/><rect x="11.8" y="11.8" width="3.2" height="3.2" rx=".6"/></svg></button><button type="button" id="phCc" class="ph-ic" aria-label="Control Center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="16" cy="12" r="2.2" fill="currentColor" stroke="none"/><circle cx="8" cy="7" r="2.2" fill="currentColor" stroke="none"/><circle cx="14" cy="17" r="2.2" fill="currentColor" stroke="none"/></svg></button></span></div>
   <div class="ph-pages" id="phPages" aria-roledescription="carousel"></div>
   <div class="dots ph-dots" id="phDots" role="tablist" aria-label="Pages"></div>
   <div class="ph-dock" id="phDock"></div>
