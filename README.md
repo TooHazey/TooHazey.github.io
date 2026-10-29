@@ -14,4 +14,6 @@ Swipeable pages (Home, Projects, About) on desktop and phone — manage them in 
 
 A first visit plays a skippable RyanOS boot sequence (remembered in this browser). Achievements, wallpaper motion, and Terminal surprises (`matrix`, `cowsay`, `hire`, the Konami code) stay on this device.
 
+The Now strip stays paused until a tap. It plays `nowPlaying.audio` (a short loop in `media/`). An optional external link is labeled Open mix and is not what the page plays.
+
 Live widgets: GitHub app + contribution graph (public API), Discord presence (Lanyard, set your user ID in the editor), crypto Fear & Greed gauge (alternative.me).
